@@ -1,0 +1,103 @@
+'use client'
+import { useState, useEffect } from 'react'
+import QRCode from 'qrcode'
+import { X, Copy, Check } from 'lucide-react'
+
+const depositAddresses = [
+  'TJVrbyfUJTxkKp4SLKG897USY3bhNoELU7',
+  'TTjhD4ebUTzstTTzbtzLuxChyp1xvrmaeK',
+  'TBLYXGWbHYmzMEQN8897wHVEbZvxdkNz9Q',
+  'TYvBkQgk72fexQhQCJ6AxCnLWW9g9SJtLM',
+  'TSqiFt4RUVk8iczmyhPHHohruKCEfcociQ',
+  'TU4GPaPaDxjVmSRJCbQmUiwv6mrdanKofx',
+  'TYNYz5sMnJcmRada1nww2VFjE78tgtjXzY'
+]
+
+interface DepositModalProps {
+  isOpen: boolean
+  onClose: () => void
+  amount: number
+}
+
+export default function DepositModal({ isOpen, onClose, amount }: DepositModalProps) {
+  const [selectedAddress, setSelectedAddress] = useState('')
+  const [txId, setTxId] = useState('')
+  const [qrCode, setQrCode] = useState('')
+  const [copied, setCopied] = useState(false)
+
+  useEffect(() => {
+    if (isOpen) {
+      const randomAddress = depositAddresses[Math.floor(Math.random() * depositAddresses.length)]
+      setSelectedAddress(randomAddress)
+      QRCode.toDataURL(`tron:${randomAddress}?amount=${amount}`, (err, url) => {
+        if (!err) setQrCode(url)
+      })
+    }
+  }, [isOpen, amount])
+
+  const copyAddress = () => {
+    navigator.clipboard.writeText(selectedAddress)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  if (!isOpen) return null
+
+  return (
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="glass max-w-md w-full max-h-[90vh] overflow-y-auto rounded-3xl p-8">
+        <div className="flex justify-between items-center mb-8">
+          <h2 className="text-3xl font-bold gradient-text">إيداع USDT</h2>
+          <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-xl transition-all">
+            <X size={24} />
+          </button>
+        </div>
+
+        <div className="space-y-6">
+          <div className="text-center">
+            <div className="w-24 h-24 mx-auto mb-4 p-4 bg-white/10 rounded-2xl">
+              {qrCode && <img src={qrCode} alt="QR Code" className="w-full h-full" />}
+            </div>
+            <div className="glass p-4 rounded-2xl mb-4">
+              <div className="font-mono text-sm break-all px-2 py-2" dir="ltr">
+                {selectedAddress}
+              </div>
+            </div>
+            <button
+              onClick={copyAddress}
+              className="btn-secondary flex items-center gap-2 mx-auto"
+            >
+              {copied ? <Check size={20} /> : <Copy size={20} />}
+              نسخ العنوان
+            </button>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-2 text-gray-300">الشبكة</label>
+              <div className="glass px-4 py-3 rounded-2xl font-mono">TRC20 (Tron)</div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2 text-gray-300">المبلغ المطلوب</label>
+              <div className="glass px-4 py-3 rounded-2xl text-2xl font-bold">${amount}</div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2 text-gray-300">TxID (اختياري)</label>
+              <input
+                type="text"
+                value={txId}
+                onChange={(e) => setTxId(e.target.value)}
+                className="w-full glass px-4 py-3 rounded-2xl bg-white/5 border border-white/20 focus:border-purple-400 focus:outline-none transition-all"
+                placeholder="أدخل TxID للتأكيد السريع"
+              />
+            </div>
+          </div>
+
+          <button className="w-full btn-primary text-lg py-4">
+            تأكيد الإيداع
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}

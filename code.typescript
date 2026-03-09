@@ -1,0 +1,27 @@
+import { NextRequest, NextResponse } from 'next/server'
+import TelegramBot from 'node-telegram-bot-api'
+
+export async function POST(request: NextRequest) {
+  try {
+    const { userId, amount, txId, address } = await request.json()
+
+    // Telegram notification
+    const botToken = process.env.BOT_TOKEN!
+    const chatId = process.env.CHAT_ID!
+    const bot = new TelegramBot(botToken, { polling: false })
+
+    await bot.sendMessage(chatId, `
+🚀 *طلب إيداع جديد*
+
+👤 المستخدم: ${userId}
+💰 المبلغ: $${amount}
+💳 العنوان: \`${address}\`
+📄 TxID: \`${txId || 'غير محدد'}\`
+⏰ الوقت: ${new Date().toLocaleString('ar')}
+    `, { parse_mode: 'Markdown' })
+
+    return NextResponse.json({ success: true, message: 'تم تسجيل الإيداع' })
+  } catch (error) {
+    return NextResponse.json({ success: false, error: 'خطأ في المعالجة' }, { status: 500 })
+  }
+}

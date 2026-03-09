@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    @apply antialiased;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply backdrop-blur-xl bg-white/10 border border-white/20;
+  }
+  
+  .gradient-text {
+    @apply bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent;
+  }
+  
+  .btn-primary {
+    @apply glass px-8 py-4 rounded-2xl font-semibold text-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/25 active:scale-95;
+  }
+  
+  .btn-secondary {
+    @apply bg-white/10 backdrop-blur-xl px-8 py-4 rounded-2xl font-semibold text-lg border border-white/20 transition-all duration-300 hover:bg-white/20 hover:scale-105;
+  }
+  
+  .card-hover {
+    @apply glass p-8 rounded-3xl transition-all duration-500 hover:-translate-y-4 hover:shadow-2xl hover:shadow-purple-500/30 group;
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, #000 25%, #1a1a2e 50%, #16213e 75%, #000 100%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
